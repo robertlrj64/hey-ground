@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hey!Ground Parent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ============================================================
+   CSS VARIABLES — fixed parent-mode red palette
+   ============================================================ */
+:root {
+  --window-bg:    #fdf5f5;
+  --header-top:   #c0392b;
+  --header-bot:   #922b21;
+  --tab-bg:       #f5d0cc;
+  --accent1:      #c0392b;
+  --accent2:      #e74c3c;
+  --accent-safe:  #27ae60;
+  --text:         #2c1a1a;
+  --text-dim:     #8a6060;
+  --bubble-self:  #f5b7b1;
+  --bubble-other: #eaecee;
+  --bubble-kid:   #d6eaf8;
+  --btn-bg:       #c0392b;
+  --btn-fg:       #ffffff;
+  --body-font:    'Nunito', sans-serif;
+  --radius-card:  14px;
+  --radius-bubble:18px;
+  --shadow:       0 4px 18px rgba(0,0,0,.10);
+}
+
+/* ============================================================
+   RESET + BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  font-family: var(--body-font);
+  background: var(--window-bg);
+  color: var(--text);
+  overflow: hidden;
+  font-size: 14px;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  width: 100%; height: 100%;
+}
+
+/* ============================================================
+   GRADIENT HEADER
+   ============================================================ */
+#header {
+  background: linear-gradient(180deg, var(--header-top), var(--header-bot));
+  padding: 12px 16px 0;
+  flex-shrink: 0;
+  box-shadow: 0 2px 14px rgba(0,0,0,.22);
+}
+
+#header-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+#parent-shield {
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,.18);
+  border: 1.5px solid rgba(255,255,255,.3);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+#title-block { flex: 1; }
+
+#app-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: .2px;
+}
+
+#app-subtitle {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,.65);
+  letter-spacing: .9px;
+  text-transform: uppercase;
+}
+
+#user-pill {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Tab bar */
+#tab-bar { display: flex; margin-top: 10px; }
+
+.tab-btn {
+  flex: 1;
+  background: none; border: none;
+  cursor: pointer;
+  padding: 8px 4px 10px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 3px;
+  color: rgba(255,255,255,.55);
+  font-family: var(--body-font);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  position: relative;
+  transition: color .2s;
+}
+.tab-btn i { font-size: 14px; }
+.tab-btn.active { color: #fff; }
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 12px; right: 12px;
+  height: 3px; border-radius: 3px 3px 0 0;
+  background: #fff;
+}
+.tab-btn:hover:not(.active) { color: rgba(255,255,255,.8); }
+
+/* ============================================================
+   CONTENT PANELS
+   ============================================================ */
+#content { flex: 1; overflow: hidden; position: relative; }
+
+.panel {
+  position: absolute; inset: 0;
+  overflow-y: auto; overflow-x: hidden;
+  padding: 12px;
+  display: none; flex-direction: column;
+  background: var(--window-bg);
+}
+.panel.active { display: flex; }
+
+/* ============================================================
+   SECTION LABELS
+   ============================================================ */
+.section-label {
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-dim);
+  padding: 8px 4px 5px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* ============================================================
+   READONLY NOTICE
+   ============================================================ */
+.readonly-notice {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 10px;
+  background: rgba(192,57,43,.07);
+  border: 1px solid rgba(192,57,43,.18);
+  border-radius: 8px;
+  font-size: 11px; font-weight: 600;
+  color: var(--accent1);
+  margin-bottom: 6px;
+}
+
+/* ============================================================
+   CONVERSATION ROWS
+   ============================================================ */
+.convo-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.convo-row:hover { background: rgba(0,0,0,.05); }
+
+.convo-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+}
+.convo-avatar.kid-av    { background: #5dade2; }
+.convo-avatar.parent-av { background: var(--accent1); }
+
+.convo-info { flex: 1; min-width: 0; }
+.convo-name {
+  font-weight: 700; font-size: 13px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.convo-preview {
+  font-size: 11px; color: var(--text-dim); font-style: italic;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.convo-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.convo-time { font-size: 10px; color: var(--text-dim); }
+.convo-badge {
+  background: var(--accent2); color: #fff;
+  font-size: 10px; font-weight: 700;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ============================================================
+   CHAT OVERLAY
+   ============================================================ */
+#chat-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  display: none; align-items: center; justify-content: center;
+  z-index: 100; backdrop-filter: blur(2px);
+}
+#chat-overlay.open { display: flex; }
+
+#chat-window {
+  width: min(400px, 96vw); height: min(500px, 90vh);
+  background: var(--window-bg);
+  border-radius: 18px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  animation: slideUp .2s ease;
+}
+
+#chat-header {
+  background: linear-gradient(180deg, var(--header-top), var(--header-bot));
+  padding: 12px 14px;
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+
+#chat-av {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+}
+#chat-av.kid-mode    { background: rgba(93,173,226,.5); }
+#chat-av.parent-mode { background: rgba(255,255,255,.2); }
+
+#chat-name { font-size: 15px; font-weight: 800; color: #fff; }
+#chat-sub  { font-size: 10px; color: rgba(255,255,255,.7); margin-top: 1px; }
+#chat-header-info { flex: 1; }
+
+#chat-close {
+  background: rgba(255,255,255,.2); border: none; color: #fff;
+  width: 28px; height: 28px; border-radius: 50%;
+  cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+#chat-close:hover { background: rgba(255,255,255,.35); }
+
+#chat-messages {
+  flex: 1; overflow-y: auto;
+  padding: 12px;
+  display: flex; flex-direction: column; gap: 6px;
+  background: var(--window-bg);
+}
+
+.msg-row         { display: flex; animation: fadeIn .15s ease; }
+.msg-row.self    { justify-content: flex-end; }
+.msg-row.system  { justify-content: center; }
+
+.msg-bubble {
+  max-width: 78%; padding: 8px 12px;
+  border-radius: var(--radius-bubble);
+  font-size: 13px; line-height: 1.45;
+  box-shadow: 0 1px 4px rgba(0,0,0,.07);
+}
+.msg-bubble.self   { background: var(--bubble-self);  color: var(--text); border-bottom-right-radius: 4px; }
+.msg-bubble.other  { background: var(--bubble-other); color: var(--text); border-bottom-left-radius: 4px; }
+.msg-bubble.kid    { background: var(--bubble-kid);   color: var(--text); border-bottom-left-radius: 4px; }
+.msg-bubble.system { background: #e0e0e4; color: #78788a; font-style: italic; font-size: 12px; border-radius: 10px; }
+
+.msg-time { font-size: 10px; color: var(--text-dim); margin-top: 3px; text-align: right; }
+.msg-bubble.other .msg-time,
+.msg-bubble.kid   .msg-time { text-align: left; }
+
+/* Read-only footer */
+#readonly-footer {
+  padding: 10px 14px;
+  background: rgba(192,57,43,.06);
+  border-top: 1.5px solid rgba(192,57,43,.14);
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--accent1); font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Parent input */
+#chat-input-area {
+  display: flex; gap: 8px; padding: 10px 12px;
+  background: var(--window-bg);
+  border-top: 1.5px solid rgba(0,0,0,.08);
+  flex-shrink: 0;
+}
+#chat-input {
+  flex: 1; border: 1.5px solid rgba(0,0,0,.15); border-radius: 10px;
+  padding: 8px 12px; font-family: var(--body-font); font-size: 13px;
+  resize: none; outline: none; background: white; color: var(--text);
+  max-height: 80px;
+}
+#chat-input:focus { border-color: var(--accent1); }
+#send-btn {
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: none; border-radius: 10px; width: 44px;
+  cursor: pointer; font-size: 15px; transition: filter .15s;
+}
+#send-btn:hover  { filter: brightness(1.1); }
+#send-btn:active { transform: scale(.94); }
+
+/* ============================================================
+   SETTINGS / CONTROLS PANEL
+   ============================================================ */
+.settings-title {
+  font-size: 18px; font-weight: 800; color: var(--accent1);
+  margin-bottom: 14px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.settings-section { margin-bottom: 16px; }
+
+.settings-group-label {
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .8px;
+  color: var(--text-dim); margin-bottom: 6px;
+}
+
+.settings-card {
+  background: var(--tab-bg); border-radius: var(--radius-card);
+  padding: 12px 14px; display: flex; flex-direction: column;
+  gap: 10px; box-shadow: var(--shadow);
+}
+
+.settings-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+/* Feature toggle rows */
+.toggle-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0,0,0,.07);
+}
+.toggle-row:last-child  { border-bottom: none; padding-bottom: 0; }
+.toggle-row:first-child { padding-top: 0; }
+
+.toggle-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+
+.toggle-info { flex: 1; }
+.toggle-label { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.toggle-sublabel { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
+
+/* Status badge */
+.status-badge {
+  font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+}
+.status-badge.allowed { background: #d5f5e3; color: #1e8449; }
+.status-badge.blocked { background: #fadbd8; color: #922b21; }
+
+/* iOS-style toggle */
+.switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; inset: 0;
+  background: #ccc; border-radius: 24px;
+  cursor: pointer; transition: background .25s;
+}
+.slider::before {
+  content: ''; position: absolute;
+  width: 18px; height: 18px; left: 3px; top: 3px;
+  background: white; border-radius: 50%;
+  transition: transform .25s;
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+.switch input:checked + .slider { background: var(--accent-safe); }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+
+/* Profile grid */
+.profile-grid {
+  display: grid; grid-template-columns: auto 1fr;
+  gap: 6px 10px; align-items: center;
+}
+.profile-grid label { font-size: 12px; font-weight: 700; white-space: nowrap; }
+.profile-grid input {
+  border: 1.5px solid rgba(0,0,0,.14); border-radius: 7px;
+  padding: 5px 8px; font-family: var(--body-font); font-size: 12px;
+  background: white; color: var(--text); outline: none;
+}
+.profile-grid input:focus { border-color: var(--accent1); }
+
+/* Save button */
+.save-btn {
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: none; border-radius: 10px;
+  padding: 10px 22px;
+  font-family: var(--body-font); font-weight: 700; font-size: 13px;
+  cursor: pointer; align-self: flex-start;
+  display: flex; align-items: center; gap: 7px;
+  transition: filter .15s;
+  margin-top: 4px;
+}
+.save-btn:hover { filter: brightness(1.08); }
+
+/* ---- Action buttons (account section) ---- */
+.settings-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  background: var(--window-bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s;
+  width: 100%;
+  text-align: left;
+}
+
+.settings-action-btn:hover { background: var(--accent-soft); }
+
+.settings-action-btn-signout { color: #b91c1c; border-color: rgba(185,28,28,.25); }
+.settings-action-btn-signout:hover { background: #fee2e2; }
+
+/* ============================================================
+   SCROLLBAR + TOAST + ANIMATIONS
+   ============================================================ */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,.16); border-radius: 10px; }
+
+#toast {
+  position: fixed; bottom: 20px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(30,10,10,.88); color: #fff;
+  padding: 9px 18px; border-radius: 30px;
+  font-size: 13px; font-weight: 600;
+  pointer-events: none; opacity: 0;
+  transition: opacity .25s, transform .25s;
+  z-index: 200; white-space: nowrap;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(24px); opacity: 0; }
+                     to   { transform: translateY(0);    opacity: 1; } }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===================== HEADER ===================== -->
+  <div id="header">
+    <div id="header-top">
+      <div id="parent-shield">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div id="title-block">
+        <div id="app-title">Hey!Ground</div>
+        <div id="app-subtitle">Parent Dashboard</div>
+      </div>
+      <div id="user-pill">
+        <i class="fa-solid fa-circle" style="color:#f1948a;font-size:8px"></i>
+        Alex's Parent
+      </div>
+    </div>
+
+    <div id="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('chats', this)">
+        <i class="fa-solid fa-comments"></i>Chats
+      </button>
+      <button class="tab-btn" onclick="switchTab('settings', this)">
+        <i class="fa-solid fa-sliders"></i>Controls
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== CONTENT ===================== -->
+  <div id="content">
+
+    <!-- ---- CHATS ---- -->
+    <div class="panel active" id="panel-chats">
+
+      <div class="section-label">
+        <i class="fa-solid fa-child"></i>
+        Alex's Chats
+        <span style="margin-left:auto;font-size:10px;font-weight:700;
+                     color:var(--accent1);text-transform:none;letter-spacing:0">
+          Read only
+        </span>
+      </div>
+
+      <div class="readonly-notice">
+        <i class="fa-solid fa-eye"></i>
+        You can view Alex's conversations but cannot send messages as them.
+      </div>
+
+      <div id="kid-convo-list"></div>
+
+      <div class="section-label" style="margin-top:14px">
+        <i class="fa-solid fa-shield-halved"></i>
+        Parent Chats
+      </div>
+
+      <div id="parent-convo-list"></div>
+
+    </div>
+
+    <!-- ---- CONTROLS ---- -->
+    <div class="panel" id="panel-settings">
+
+      <div class="settings-title">
+        <i class="fa-solid fa-sliders"></i> Parental Controls
+      </div>
+
+      <!-- Feature access toggles -->
+      <div class="settings-section">
+        <div class="settings-group-label">Alex's Feature Access</div>
+        <div class="settings-card">
+          <div class="settings-desc">
+            Control which features Alex can use in Hey!Ground.
+            Changes take effect immediately.
+          </div>
+
+          <!-- Browser -->
+          <div class="toggle-row">
+            <div class="toggle-icon" style="background:#d6eaf8;color:#2980b9">
+              <i class="fa-solid fa-globe"></i>
+            </div>
+            <div class="toggle-info">
+              <div class="toggle-label">
+                Web Browser
+                <span class="status-badge blocked" id="badge-browser">Blocked</span>
+              </div>
+              <div class="toggle-sublabel">Allow Alex to use the built-in browser</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-browser"
+                     onchange="handleToggle('browser', this)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Games -->
+          <div class="toggle-row">
+            <div class="toggle-icon" style="background:#d5f5e3;color:#1e8449">
+              <i class="fa-solid fa-gamepad"></i>
+            </div>
+            <div class="toggle-info">
+              <div class="toggle-label">
+                Games Lounge
+                <span class="status-badge blocked" id="badge-games">Blocked</span>
+              </div>
+              <div class="toggle-sublabel">Allow Alex to browse and play games</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-games"
+                     onchange="handleToggle('games', this)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Chat -->
+          <div class="toggle-row">
+            <div class="toggle-icon" style="background:#fdebd0;color:#d35400">
+              <i class="fa-solid fa-comment"></i>
+            </div>
+            <div class="toggle-info">
+              <div class="toggle-label">
+                Chat with Friends
+                <span class="status-badge allowed" id="badge-chat">Allowed</span>
+              </div>
+              <div class="toggle-sublabel">Allow Alex to send and receive messages</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-chat" checked
+                     onchange="handleToggle('chat', this)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Monitoring -->
+      <div class="settings-section">
+        <div class="settings-group-label">Monitoring</div>
+        <div class="settings-card">
+          <div class="settings-desc">
+            Choose what activity you can see in the Chats tab.
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-icon" style="background:#f9ebea;color:#c0392b">
+              <i class="fa-solid fa-eye"></i>
+            </div>
+            <div class="toggle-info">
+              <div class="toggle-label">View Kid's Messages</div>
+              <div class="toggle-sublabel">See Alex's conversations in real time</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" checked
+                     onchange="toast('Monitoring preference saved.')">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-icon" style="background:#f9ebea;color:#c0392b">
+              <i class="fa-solid fa-bell"></i>
+            </div>
+            <div class="toggle-info">
+              <div class="toggle-label">New Message Alerts</div>
+              <div class="toggle-sublabel">Get notified when Alex receives a message</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" checked
+                     onchange="toast('Alert preference saved.')">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Child profile -->
+      <div class="settings-section">
+        <div class="settings-group-label">Child Profile</div>
+        <div class="settings-card">
+          <div class="profile-grid">
+            <label>Child's Name:</label><input type="text" value="Alex">
+            <label>Screen Name:</label><input type="text" value="CoolKid42">
+            <label>Grade:</label>      <input type="text" value="4th Grade">
+          </div>
+        </div>
+      </div>
+
+      <!-- Parent profile -->
+      <div class="settings-section">
+        <div class="settings-group-label">Your Profile</div>
+        <div class="settings-card">
+          <div class="profile-grid">
+            <label>Your Name:</label>    <input type="text" value="Alex's Parent">
+            <label>Screen Name:</label>  <input type="text" value="AlexParent1">
+          </div>
+        </div>
+      </div>
+
+      <button class="save-btn" onclick="toast('Settings saved!')">
+        <i class="fa-solid fa-check"></i> Save Changes
+      </button>
+
+      <!-- Account -->
+      <div class="settings-section" style="margin-top:16px">
+        <div class="settings-group-label">Account</div>
+        <div class="settings-card">
+          <div class="settings-desc">Manage your Hey!Ground parent account.</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+            <button class="settings-action-btn" onclick="toast('Password change is not available in prototype mode.')">
+              <i class="fa-solid fa-key"></i> Change Password
+            </button>
+            <button class="settings-action-btn settings-action-btn-signout" onclick="confirmSignOut()">
+              <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="settings-section">
+        <div class="settings-group-label">About</div>
+        <div class="settings-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="font-size:18px;font-weight:900;color:var(--accent)">Hey!Ground</div>
+            <div style="font-size:11px;color:var(--text-dim);background:var(--window-bg);padding:2px 8px;border-radius:20px;font-weight:700;border:1px solid var(--border)">v1.0 Parent</div>
+          </div>
+          <div class="settings-desc" style="line-height:1.7">
+            A safe and fun messaging app for students.<br>
+            This is the parent companion dashboard.<br>
+            Manage your child's access and view their chats.
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--text-dim)">
+            Built with HTML, CSS &amp; JavaScript.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== CHAT OVERLAY ===================== -->
+<div id="chat-overlay" onclick="closeChatIfOutside(event)">
+  <div id="chat-window">
+
+    <div id="chat-header">
+      <div id="chat-av"></div>
+      <div id="chat-header-info">
+        <div id="chat-name"></div>
+        <div id="chat-sub"></div>
+      </div>
+      <button id="chat-close" onclick="closeChat()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div id="chat-messages"></div>
+
+    <div id="readonly-footer">
+      <i class="fa-solid fa-eye"></i>
+      Viewing Alex's conversation &mdash; read only
+    </div>
+
+    <div id="chat-input-area">
+      <textarea id="chat-input" rows="1" placeholder="Message..."
+        onkeydown="handleChatKey(event)"
+        oninput="autoResize(this)"></textarea>
+      <button id="send-btn" onclick="sendMessage()">
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+//  DATA
+// ============================================================
+
+const KID_CONVOS = [
+  {
+    id:'kid-sam', name:'Sam', initial:'S',
+    preview:'Want to do homework together?', time:'3:42 PM', unread:2,
+    messages:[
+      { text:'Hey Alex!',                           type:'other', time:'3:38 PM' },
+      { text:'Want to do homework together later?',  type:'other', time:'3:39 PM' },
+      { text:'Sure! After dinner?',                 type:'kid',   time:'3:40 PM' },
+      { text:'Want to do homework together?',        type:'other', time:'3:42 PM' },
+    ]
+  },
+  {
+    id:'kid-jordan', name:'Jordan', initial:'J',
+    preview:'Did you finish the project?', time:'2:15 PM', unread:0,
+    messages:[
+      { text:'Did you finish the science project?',  type:'other', time:'2:10 PM' },
+      { text:'Almost! Just the conclusion left.',    type:'kid',   time:'2:12 PM' },
+      { text:'Nice! Same here.',                    type:'other', time:'2:15 PM' },
+    ]
+  },
+  {
+    id:'kid-taylor', name:'Taylor', initial:'T',
+    preview:'Have you read chapter 7 yet?', time:'12:30 PM', unread:1,
+    messages:[
+      { text:'Have you read chapter 7 yet?',         type:'other', time:'12:28 PM' },
+      { text:'Not yet, is it good?',                 type:'kid',   time:'12:29 PM' },
+      { text:'So good!! No spoilers though :)',       type:'other', time:'12:30 PM' },
+    ]
+  },
+];
+
+const PARENT_CONVOS = [
+  {
+    id:'parent-sam', name:"Sam's Mom", initial:'S',
+    preview:'Thanks for setting this up!', time:'4:00 PM', unread:1,
+    messages:[
+      { text:'Hi! I just set up Sam on Hey!Ground.',         type:'other', time:'3:55 PM' },
+      { text:'Thanks for setting this up for the kids!',      type:'other', time:'3:57 PM' },
+      { text:"Of course! It's great having a safe space.",   type:'self',  time:'3:58 PM' },
+      { text:'Thanks for setting this up!',                  type:'other', time:'4:00 PM' },
+    ]
+  },
+  {
+    id:'parent-jordan', name:"Jordan's Dad", initial:'J',
+    preview:'Sounds good, see you at pickup!', time:'1:45 PM', unread:0,
+    messages:[
+      { text:'Are you picking up at 3 today?',      type:'other', time:'1:40 PM' },
+      { text:'Yes, will be there right at 3.',      type:'self',  time:'1:42 PM' },
+      { text:'Sounds good, see you at pickup!',     type:'other', time:'1:45 PM' },
+    ]
+  },
+];
+
+const features = { browser:false, games:false, chat:true };
+
+let activeChat = null;
+let isKidChat  = false;
+
+// ============================================================
+//  INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderKidConvos();
+  renderParentConvos();
+});
+
+// ============================================================
+//  TABS
+// ============================================================
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tabId).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ============================================================
+//  CONVO LISTS
+// ============================================================
+function renderKidConvos() {
+  document.getElementById('kid-convo-list').innerHTML =
+    KID_CONVOS.map(c => convoHTML(c, true)).join('');
+}
+
+function renderParentConvos() {
+  document.getElementById('parent-convo-list').innerHTML =
+    PARENT_CONVOS.map(c => convoHTML(c, false)).join('');
+}
+
+function convoHTML(c, isKid) {
+  const avClass = isKid ? 'kid-av' : 'parent-av';
+  const badge   = c.unread > 0 ? `<div class="convo-badge">${c.unread}</div>` : '';
+  return `
+    <div class="convo-row" onclick="openChat('${c.id}', ${isKid})">
+      <div class="convo-avatar ${avClass}">${c.initial}</div>
+      <div class="convo-info">
+        <div class="convo-name">${esc(c.name)}</div>
+        <div class="convo-preview">${esc(c.preview)}</div>
+      </div>
+      <div class="convo-meta">
+        <div class="convo-time">${c.time}</div>
+        ${badge}
+      </div>
+    </div>`;
+}
+
+// ============================================================
+//  CHAT
+// ============================================================
+function openChat(id, kidChat) {
+  const list  = kidChat ? KID_CONVOS : PARENT_CONVOS;
+  const convo = list.find(c => c.id === id);
+  if (!convo) return;
+  activeChat = convo;
+  isKidChat  = kidChat;
+
+  convo.unread = 0;
+  kidChat ? renderKidConvos() : renderParentConvos();
+
+  const av = document.getElementById('chat-av');
+  av.textContent = convo.initial;
+  av.className   = kidChat ? 'kid-mode' : 'parent-mode';
+
+  document.getElementById('chat-name').textContent = convo.name;
+  document.getElementById('chat-sub').textContent  = kidChat
+    ? "Alex's conversation — read only"
+    : 'Parent chat';
+
+  document.getElementById('readonly-footer').style.display = kidChat ? 'flex' : 'none';
+  document.getElementById('chat-input-area').style.display = kidChat ? 'none' : 'flex';
+
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = '';
+  convo.messages.forEach(m => appendBubble(m.text, m.type, m.time));
+
+  document.getElementById('chat-overlay').classList.add('open');
+  if (!kidChat) setTimeout(() => document.getElementById('chat-input').focus(), 100);
+}
+
+function closeChat() {
+  document.getElementById('chat-overlay').classList.remove('open');
+  activeChat = null;
+}
+
+function closeChatIfOutside(e) {
+  if (e.target === document.getElementById('chat-overlay')) closeChat();
+}
+
+function sendMessage() {
+  if (isKidChat || !activeChat) return;
+  const input = document.getElementById('chat-input');
+  const text  = input.value.trim();
+  if (!text) return;
+  const time = new Date().toLocaleTimeString([], { hour:'numeric', minute:'2-digit' });
+  activeChat.messages.push({ text, type:'self', time });
+  activeChat.preview = text;
+  appendBubble(text, 'self', time);
+  renderParentConvos();
+  input.value = '';
+  input.style.height = '';
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function autoResize(el) {
+  el.style.height = '';
+  el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+}
+
+function appendBubble(text, type, time) {
+  const msgs = document.getElementById('chat-messages');
+  const bubbleCls = type === 'self' ? 'self' : type === 'kid' ? 'kid' : type === 'system' ? 'system' : 'other';
+  const rowCls    = type === 'self' ? 'self' : type === 'system' ? 'system' : '';
+  const row = document.createElement('div');
+  row.className = 'msg-row ' + rowCls;
+  row.innerHTML = `
+    <div class="msg-bubble ${bubbleCls}">
+      ${esc(text)}
+      <div class="msg-time">${time}</div>
+    </div>`;
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ============================================================
+//  FEATURE TOGGLES
+// ============================================================
+function handleToggle(feature, checkbox) {
+  features[feature] = checkbox.checked;
+  const badge = document.getElementById('badge-' + feature);
+  if (badge) {
+    badge.textContent = checkbox.checked ? 'Allowed' : 'Blocked';
+    badge.className   = 'status-badge ' + (checkbox.checked ? 'allowed' : 'blocked');
+  }
+  const labels = { browser:'Web Browser', games:'Games Lounge', chat:'Chat with Friends' };
+  toast(`${labels[feature]} ${checkbox.checked ? 'enabled' : 'disabled'} for Alex.`);
+}
+
+// ============================================================
+//  UTILS
+// ============================================================
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ============================================================
+//  SIGN OUT
+// ============================================================
+function confirmSignOut() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:fixed;inset:0;background:rgba(80,10,10,.5);
+    display:flex;align-items:center;justify-content:center;
+    z-index:300;animation:fadeIn .15s ease;backdrop-filter:blur(2px)`;
+  overlay.innerHTML = `
+    <div style="background:var(--window-bg);border-radius:16px;padding:24px;
+      width:min(280px,90vw);box-shadow:0 20px 50px rgba(100,10,10,.4);
+      animation:slideUp .2s ease;text-align:center;font-family:var(--font)">
+      <div style="font-size:28px;margin-bottom:10px">
+        <i class="fa-solid fa-right-from-bracket" style="color:var(--accent)"></i>
+      </div>
+      <div style="font-weight:900;font-size:15px;margin-bottom:6px;color:var(--text)">Sign Out?</div>
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:18px">
+        Are you sure you want to sign out of the parent dashboard?
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button onclick="this.closest('[style]').remove()"
+          style="background:var(--card-bg);border:1.5px solid var(--border);border-radius:9px;
+                 padding:9px 20px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer;color:var(--text)">
+          Cancel
+        </button>
+        <button onclick="this.closest('[style]').remove();toast('Signed out. Goodbye!')"
+          style="background:var(--accent);color:#fff;border:none;border-radius:9px;
+                 padding:9px 20px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer">
+          Sign Out
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+</script>
+</body>
+</html>
