@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hey!Ground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --window-bg:#fff8dc;--header-top:#ffb030;--header-bot:#e08000;
+  --tab-bg:#ffdc82;--accent1:#ff8c00;--accent2:#3cb371;
+  --text:#32200a;--text-dim:#96806a;
+  --bubble-user:#ffc850;--bubble-other:#c8f0c8;
+  --btn-bg:#ff8c00;--btn-fg:#ffffff;--offline-fg:#aaaaaa;
+  --header-font:'Fredoka One',cursive;--body-font:'Nunito',sans-serif;
+  --radius-card:14px;--radius-bubble:18px;--shadow:0 4px 18px rgba(0,0,0,.12);
+}
+[data-palette="bubblegum"]{--window-bg:#ffebf5;--header-top:#dc3c8c;--header-bot:#b02070;--tab-bg:#ffc8e1;--accent1:#c82878;--accent2:#50c3b3;--text:#3c0a1e;--bubble-user:#ffaad2;--bubble-other:#b4f0e3;}
+[data-palette="tropical"] {--window-bg:#ebfff5;--header-top:#1eaf78;--header-bot:#128a58;--tab-bg:#b3eece;--accent1:#149060;--accent2:#ffb423;--text:#0a3220;--bubble-user:#91e1bd;--bubble-other:#ffe19b;}
+[data-palette="sky"]      {--window-bg:#ebf8ff;--header-top:#3c9fe6;--header-bot:#1e72c8;--tab-bg:#bde1ff;--accent1:#1e82d2;--accent2:#ff9c37;--text:#0a1e3c;--bubble-user:#9fd3ff;--bubble-other:#ffd29b;}
+[data-palette="grape"]    {--window-bg:#f8ebff;--header-top:#8728c3;--header-bot:#6414aa;--tab-bg:#d7b2ff;--accent1:#7328b3;--accent2:#ff9b4b;--text:#280a3c;--bubble-user:#c391ff;--bubble-other:#ffc391;}
+[data-palette="steelblue"]{--window-bg:#f5f5fa;--header-top:#3c64a0;--header-bot:#2a4878;--tab-bg:#dce6f5;--accent1:#4682b4;--accent2:#6495ed;--text:#1e1e32;--bubble-user:#c8dcff;--bubble-other:#ebebf0;--header-font:'Nunito',sans-serif;--body-font:'Nunito',sans-serif;}
+[data-palette="slate"]    {--window-bg:#f5f6f8;--header-top:#465060;--header-bot:#303848;--tab-bg:#d7dce6;--accent1:#505f73;--accent2:#64a0b4;--text:#191e28;--bubble-user:#bed2e6;--bubble-other:#e1e4eb;--header-font:'Nunito',sans-serif;--body-font:'Nunito',sans-serif;}
+[data-palette="forest"]   {--window-bg:#f2f7f2;--header-top:#326e46;--header-bot:#1e5030;--tab-bg:#c3e1c8;--accent1:#2d7848;--accent2:#5aa06e;--text:#142819;--bubble-user:#aad7b4;--bubble-other:#e1f0e1;--header-font:'Nunito',sans-serif;--body-font:'Nunito',sans-serif;}
+[data-palette="charcoal"] {--window-bg:#28292f;--header-top:#1e2026;--header-bot:#141518;--tab-bg:#373a44;--accent1:#64b4ff;--accent2:#50c8a0;--text:#d2d7e1;--text-dim:#8890a0;--bubble-user:#3c5a82;--bubble-other:#414654;--btn-bg:#64b4ff;--offline-fg:#606878;--header-font:'Nunito',sans-serif;--body-font:'Nunito',sans-serif;}
+[data-palette="parchment"]{--window-bg:#fcf8f0;--header-top:#a07846;--header-bot:#785a28;--tab-bg:#ebd8c3;--accent1:#b48246;--accent2:#8caa64;--text:#32230f;--bubble-user:#f0d2a0;--bubble-other:#d7ebc3;--header-font:'Nunito',sans-serif;--body-font:'Nunito',sans-serif;}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;font-family:var(--body-font);background:var(--window-bg);color:var(--text);overflow:hidden;font-size:14px;}
+
+/* APP SHELL */
+#app{display:flex;flex-direction:column;width:100%;height:100%;background:var(--window-bg);transition:background .3s,color .3s;}
+
+/* HEADER */
+#header{background:linear-gradient(180deg,var(--header-top) 0%,var(--header-bot) 100%);padding:12px 16px 0;flex-shrink:0;box-shadow:0 2px 12px rgba(0,0,0,.18);}
+#header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+#app-title{font-family:var(--header-font);font-size:20px;color:#fff;letter-spacing:.5px;}
+#user-status{font-size:11px;color:rgba(255,255,255,.8);margin-bottom:10px;}
+#tab-bar{display:flex;gap:0;}
+.tab-btn{flex:1;background:none;border:none;cursor:pointer;padding:8px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(255,255,255,.6);font-family:var(--body-font);font-size:9px;font-weight:700;position:relative;transition:color .2s;letter-spacing:.3px;text-transform:uppercase;}
+.tab-btn i{font-size:14px;}
+.tab-btn.active{color:#fff;}
+.tab-btn.active::after{content:'';position:absolute;bottom:0;left:10px;right:10px;height:3px;border-radius:3px 3px 0 0;background:#fff;}
+.tab-btn:hover:not(.active){color:rgba(255,255,255,.85);}
+
+/* CONTENT */
+#content{flex:1;overflow:hidden;position:relative;}
+.panel{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:12px;display:none;flex-direction:column;background:var(--window-bg);transition:background .3s;}
+.panel.active{display:flex;}
+
+/* FRIENDS */
+.section-header{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);padding:8px 6px 4px;display:flex;align-items:center;gap:5px;}
+.buddy-row{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:10px;cursor:pointer;transition:background .15s;}
+.buddy-row:hover{background:rgba(0,0,0,.06);}
+.buddy-row.offline{opacity:.65;cursor:default;}
+.buddy-avatar{width:36px;height:36px;border-radius:50%;background:var(--accent1);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;transition:background .3s;}
+.buddy-row.offline .buddy-avatar{background:#b4b4b4!important;}
+.buddy-info{flex:1;min-width:0;}
+.buddy-name{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.buddy-status{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic;}
+.buddy-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.buddy-dot.online{background:#32cd50;}
+.buddy-dot.offline{background:#c8c8c8;}
+.friends-footer{margin-top:auto;padding:8px 4px 2px;font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:5px;}
+
+/* PROFILE PANEL */
+.profile-hero{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 12px 12px;}
+.profile-avatar-lg{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff;cursor:pointer;transition:transform .2s,filter .2s;box-shadow:0 4px 14px rgba(0,0,0,.18);}
+.profile-avatar-lg:hover{transform:scale(1.06);filter:brightness(1.1);}
+.profile-display-nm{font-family:var(--header-font);font-size:20px;color:var(--text);}
+.profile-screen-nm{font-size:12px;color:var(--text-dim);}
+.color-swatch-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:8px 0;}
+.color-dot{width:30px;height:30px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .15s,transform .15s;}
+.color-dot:hover{transform:scale(1.15);}
+.color-dot.selected{border-color:var(--text);}
+.field-group{background:var(--tab-bg);border-radius:var(--radius-card);padding:12px 14px;display:flex;flex-direction:column;gap:6px;width:100%;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.field-group label{font-size:10px;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;}
+.field-group input{border:1.5px solid rgba(0,0,0,.14);border-radius:8px;padding:7px 10px;font-family:var(--body-font);font-size:13px;background:white;color:var(--text);outline:none;width:100%;}
+.field-group input:focus{border-color:var(--accent1);}
+
+/* BROWSER */
+#browser-toolbar{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-shrink:0;}
+.nav-btn{width:30px;height:28px;border:1.5px solid rgba(0,0,0,.15);border-radius:6px;background:var(--window-bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text);transition:background .15s;flex-shrink:0;}
+.nav-btn:hover:not(:disabled){background:var(--tab-bg);}
+.nav-btn:disabled{opacity:.38;cursor:default;}
+#address-bar-wrap{flex:1;display:flex;align-items:center;border:1.5px solid rgba(0,0,0,.15);border-radius:8px;background:white;overflow:hidden;padding:0 8px;gap:5px;}
+#address-lock{color:#5aaa5a;font-size:12px;}
+#address-bar{flex:1;border:none;outline:none;font-family:var(--body-font);font-size:12px;padding:5px 0;background:transparent;color:var(--text);}
+#go-btn{background:var(--btn-bg);color:var(--btn-fg);border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-family:var(--body-font);font-weight:700;font-size:12px;flex-shrink:0;}
+#browser-page{flex:1;border-radius:var(--radius-card);overflow:hidden;background:white;display:flex;align-items:center;justify-content:center;min-height:0;box-shadow:var(--shadow);}
+.browser-message{display:none;flex-direction:column;align-items:center;text-align:center;padding:24px;gap:14px;}
+.browser-message.active{display:flex;}
+.browser-icon-circle{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;}
+.browser-heading{font-family:var(--header-font);font-size:16px;max-width:240px;line-height:1.35;}
+.browser-sub{font-size:13px;color:var(--text-dim);max-width:220px;}
+.search-box-wrap{display:flex;gap:6px;width:100%;max-width:320px;margin-top:4px;}
+.search-box-wrap input{flex:1;border:1.5px solid rgba(0,0,0,.15);border-radius:8px;padding:7px 10px;font-family:var(--body-font);font-size:13px;outline:none;color:var(--text);}
+.search-box-wrap input:focus{border-color:var(--accent1);}
+.search-box-wrap button{background:var(--btn-bg);color:var(--btn-fg);border:none;border-radius:8px;padding:7px 14px;cursor:pointer;font-family:var(--body-font);font-weight:700;font-size:12px;}
+#browser-dev-bar{margin-top:8px;padding:6px 10px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.1);border-radius:8px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim);font-style:italic;flex-shrink:0;}
+#browser-dev-bar select{font-family:var(--body-font);font-size:11px;border:1px solid rgba(0,0,0,.15);border-radius:5px;padding:2px 5px;background:var(--window-bg);color:var(--text);cursor:pointer;}
+
+/* GAMES */
+.games-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-shrink:0;}
+.games-header-title{font-family:var(--header-font);font-size:18px;color:var(--accent1);}
+.games-header i{color:var(--accent1);font-size:18px;}
+.games-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.game-card{background:var(--tab-bg);border-radius:var(--radius-card);padding:12px;display:flex;flex-direction:column;gap:5px;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 2px 8px rgba(0,0,0,.07);}
+.game-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.13);}
+.game-card.featured{grid-column:span 2;flex-direction:row;gap:12px;align-items:center;background:linear-gradient(135deg,var(--accent1) 0%,var(--accent2) 100%);color:#fff;}
+.game-card.featured .game-card-name,.game-card.featured .game-card-desc{color:#fff;}
+.game-card.featured .game-tag{background:rgba(255,255,255,.25);color:#fff;}
+.game-card.featured .play-btn{background:rgba(255,255,255,.9);color:var(--accent1);}
+.game-card.featured .game-card-name i{color:#fff;}
+.featured-icon{font-size:40px;opacity:.85;}
+.featured-info{flex:1;}
+.game-card-name{display:flex;align-items:center;gap:6px;font-weight:800;font-size:13px;color:var(--text);}
+.game-card-name i{color:var(--accent1);font-size:13px;}
+.game-card-desc{font-size:11px;color:var(--text-dim);line-height:1.4;flex:1;}
+.game-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
+.game-tag{font-size:10px;font-weight:700;color:#fff;background:var(--accent2);padding:2px 7px;border-radius:20px;}
+.play-btn{font-size:11px;font-weight:700;color:var(--btn-fg);background:var(--btn-bg);border:none;border-radius:7px;padding:4px 10px;cursor:pointer;font-family:var(--body-font);display:flex;align-items:center;gap:4px;transition:filter .15s;}
+.play-btn:hover{filter:brightness(1.1);}
+
+/* SETTINGS */
+.settings-title{font-family:var(--header-font);font-size:18px;color:var(--accent1);margin-bottom:14px;flex-shrink:0;}
+.settings-section{margin-bottom:16px;}
+.settings-group-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--text-dim);margin-bottom:6px;}
+.settings-card{background:var(--tab-bg);border-radius:var(--radius-card);padding:12px 14px;display:flex;flex-direction:column;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.settings-desc{font-size:12px;color:var(--text-dim);}
+.style-radio-group{display:flex;flex-direction:column;gap:6px;}
+.style-radio{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;}
+.style-radio input{accent-color:var(--accent1);cursor:pointer;}
+.palette-row{display:flex;gap:8px;flex-wrap:wrap;}
+.swatch{width:38px;height:38px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .15s,transform .15s;flex-shrink:0;}
+.swatch:hover{transform:scale(1.1);}
+.swatch.selected{border-color:var(--text);}
+.swatch-inner{width:100%;height:100%;border-radius:50%;overflow:hidden;}
+.profile-grid{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;}
+.profile-grid label{font-size:12px;font-weight:700;white-space:nowrap;}
+.profile-grid input{border:1.5px solid rgba(0,0,0,.14);border-radius:7px;padding:5px 8px;font-family:var(--body-font);font-size:12px;background:white;color:var(--text);outline:none;}
+.profile-grid input:focus{border-color:var(--accent1);}
+.check-row{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;}
+.check-row input{accent-color:var(--accent1);cursor:pointer;}
+.save-btn{margin-top:4px;background:var(--btn-bg);color:var(--btn-fg);border:none;border-radius:10px;padding:10px 22px;font-family:var(--body-font);font-weight:700;font-size:13px;cursor:pointer;align-self:flex-start;transition:filter .15s;}
+.save-btn:hover{filter:brightness(1.08);}
+.settings-action-btn{background:var(--window-bg);color:var(--text);border:1.5px solid rgba(0,0,0,.13);border-radius:9px;padding:8px 14px;font-family:var(--body-font);font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:background .15s,border-color .15s;width:100%;}
+.settings-action-btn:hover{background:var(--tab-bg);border-color:var(--accent1);}
+.settings-card-help{border:1.5px solid rgba(255,160,0,.25);background:var(--tab-bg);gap:10px;}
+.settings-action-btn-help{background:var(--btn-bg);color:var(--btn-fg);border-color:transparent;}
+.settings-action-btn-help:hover{background:var(--btn-bg);filter:brightness(1.08);border-color:transparent;}
+.help-icon-circle{width:42px;height:42px;border-radius:50%;background:var(--btn-bg);color:var(--btn-fg);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.signout-btn{background:#e05050;color:#fff;border:none;border-radius:10px;padding:10px 22px;font-family:var(--body-font);font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:filter .15s;align-self:flex-start;}
+.signout-btn:hover{filter:brightness(1.1);}
+
+/* CHAT OVERLAY */
+#chat-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(2px);animation:fadeIn .15s ease;}
+#chat-overlay.open{display:flex;}
+#chat-window{width:min(400px,96vw);height:min(500px,90vh);background:var(--window-bg);border-radius:18px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35);animation:slideUp .2s ease;}
+#chat-header{background:linear-gradient(180deg,var(--header-top),var(--header-bot));padding:12px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+#chat-header-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;font-family:var(--body-font);flex-shrink:0;}
+#chat-header-info{flex:1;}
+#chat-header-name{font-family:var(--header-font);font-size:15px;color:#fff;}
+#chat-header-status{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#fff;background:#32cd50;padding:1px 8px;border-radius:20px;margin-top:2px;}
+#chat-close{background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+#chat-close:hover{background:rgba(255,255,255,.35);}
+#chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;background:var(--window-bg);}
+.msg-row{display:flex;animation:fadeIn .15s ease;}
+.msg-row.user{justify-content:flex-end;}
+.msg-row.system{justify-content:center;}
+.msg-bubble{max-width:75%;padding:8px 12px;border-radius:var(--radius-bubble);font-size:13px;line-height:1.45;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.msg-bubble.user{background:var(--bubble-user);color:var(--text);border-bottom-right-radius:4px;}
+.msg-bubble.other{background:var(--bubble-other);color:var(--text);border-bottom-left-radius:4px;}
+.msg-bubble.system{background:#e0e0e4;color:#787880;font-style:italic;font-size:12px;border-radius:10px;}
+.msg-time{font-size:10px;color:var(--text-dim);margin-top:3px;text-align:right;}
+.msg-bubble.other .msg-time,.msg-bubble.system .msg-time{text-align:left;}
+#chat-input-area{display:flex;gap:8px;padding:10px 12px;background:var(--window-bg);border-top:1.5px solid rgba(0,0,0,.08);flex-shrink:0;}
+#chat-input{flex:1;border:1.5px solid rgba(0,0,0,.15);border-radius:10px;padding:8px 12px;font-family:var(--body-font);font-size:13px;resize:none;outline:none;background:white;color:var(--text);line-height:1.4;max-height:80px;}
+#chat-input:focus{border-color:var(--accent1);}
+#attach-btn{background:none;border:none;color:var(--text-dim);font-size:17px;cursor:pointer;padding:0 2px;display:flex;align-items:center;transition:color .15s,transform .15s;flex-shrink:0;}
+#attach-btn:hover{color:var(--accent1);transform:rotate(-15deg);}
+.attach-bubble{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.06);border:1.5px dashed rgba(0,0,0,.18);border-radius:10px;padding:7px 10px;font-size:12px;color:var(--text-dim);max-width:75%;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.attach-bubble i{font-size:18px;color:var(--accent1);}
+#send-btn{background:var(--btn-bg);color:var(--btn-fg);border:none;border-radius:10px;width:44px;cursor:pointer;font-size:15px;transition:filter .15s,transform .1s;flex-shrink:0;}
+#send-btn:hover{filter:brightness(1.1);}
+#send-btn:active{transform:scale(.94);}
+
+/* SAFETY WARNING */
+#safety-overlay{position:fixed;inset:0;background:rgba(160,20,20,.75);display:none;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(4px);animation:fadeIn .15s ease;}
+#safety-overlay.open{display:flex;}
+#safety-modal{background:#fff;border-radius:20px;padding:28px 24px;width:min(320px,90vw);box-shadow:0 20px 60px rgba(0,0,0,.4);animation:slideUp .2s ease;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;}
+.safety-icon{width:64px;height:64px;border-radius:50%;background:#fde8e8;color:#c0392b;display:flex;align-items:center;justify-content:center;font-size:26px;}
+#safety-modal h2{font-family:var(--header-font);font-size:20px;color:#c0392b;}
+#safety-modal p{font-size:13px;color:#555;line-height:1.65;max-width:270px;}
+.safety-ok-btn{background:#c0392b;color:#fff;border:none;border-radius:10px;padding:10px 28px;font-family:var(--body-font);font-weight:700;font-size:13px;cursor:pointer;transition:filter .15s;}
+.safety-ok-btn:hover{filter:brightness(1.1);}
+.safety-contact-link{background:none;border:none;color:#c0392b;font-family:var(--body-font);font-weight:700;font-size:12px;cursor:pointer;margin-top:-8px;}
+
+/* BEDTIME LOCK */
+#bedtime-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#0d0d1a 0%,#16213e 60%,#0f3460 100%);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:600;text-align:center;padding:32px;gap:16px;}
+#bedtime-overlay.active{display:flex;}
+.bedtime-stars{font-size:52px;animation:pulse 3s ease-in-out infinite;}
+.bedtime-clock{font-size:46px;font-weight:800;color:#fff;letter-spacing:3px;}
+.bedtime-title{font-family:var(--header-font);font-size:22px;color:#c8d8ff;}
+.bedtime-sub{font-size:14px;color:rgba(180,210,255,.7);max-width:250px;line-height:1.65;}
+.bedtime-emergency{background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.22);border-radius:12px;padding:12px 24px;font-family:var(--body-font);font-weight:700;font-size:14px;cursor:pointer;margin-top:6px;transition:background .2s;}
+.bedtime-emergency:hover{background:rgba(255,255,255,.18);}
+
+/* CONTACT PARENT MODAL */
+#contact-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(2px);}
+#contact-modal-overlay.open{display:flex;}
+#contact-modal{background:var(--window-bg);border-radius:18px;padding:24px;width:min(320px,90vw);box-shadow:0 20px 60px rgba(0,0,0,.35);animation:slideUp .2s ease;display:flex;flex-direction:column;gap:12px;}
+#contact-modal .modal-icon{width:56px;height:56px;border-radius:50%;background:var(--btn-bg);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto;}
+#contact-modal h2{font-family:var(--header-font);font-size:18px;color:var(--text);text-align:center;}
+#contact-modal p{font-size:13px;color:var(--text-dim);line-height:1.65;text-align:center;}
+#contact-modal .modal-close{background:var(--btn-bg);color:var(--btn-fg);border:none;border-radius:10px;padding:10px;font-family:var(--body-font);font-weight:700;font-size:13px;cursor:pointer;width:100%;margin-top:4px;}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,30,40,.88);color:#fff;padding:9px 18px;border-radius:30px;font-size:13px;font-weight:600;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s;z-index:700;white-space:nowrap;max-width:90vw;text-align:center;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.danger{background:rgba(180,20,20,.92);}
+
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.18);border-radius:10px;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <div id="header">
+    <div id="header-top">
+      <span id="app-title">Hey!Ground</span>
+      <span style="font-size:10px;color:rgba(255,255,255,.6)">v2.0</span>
+    </div>
+    <div id="user-status">
+      <i class="fa-solid fa-circle" style="color:#50e850;font-size:9px"></i>
+      &nbsp;Online &mdash; <span id="header-name">CoolKid42</span>
+    </div>
+    <div id="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('friends',this)"><i class="fa-solid fa-address-book"></i>Friends</button>
+      <button class="tab-btn" onclick="switchTab('browser',this)"><i class="fa-solid fa-globe"></i>Browser</button>
+      <button class="tab-btn" onclick="switchTab('games',this)"><i class="fa-solid fa-gamepad"></i>Games</button>
+      <button class="tab-btn" onclick="switchTab('profile',this)"><i class="fa-solid fa-user-pen"></i>Profile</button>
+      <button class="tab-btn" onclick="switchTab('settings',this)"><i class="fa-solid fa-gear"></i>Settings</button>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- FRIENDS -->
+    <div class="panel active" id="panel-friends">
+      <div class="section-header"><i class="fa-solid fa-circle" style="color:#32cd50;font-size:9px"></i>Online</div>
+      <div id="online-list"></div>
+      <div class="section-header" style="margin-top:8px"><i class="fa-solid fa-user" style="font-size:10px"></i>Offline</div>
+      <div id="offline-list"></div>
+      <div class="friends-footer"><i class="fa-solid fa-users"></i><span id="friends-count"></span></div>
+    </div>
+
+    <!-- BROWSER -->
+    <div class="panel" id="panel-browser">
+      <div id="browser-toolbar">
+        <button class="nav-btn" id="btn-back" onclick="navBack()" disabled title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+        <button class="nav-btn" id="btn-forward" onclick="navForward()" disabled title="Forward"><i class="fa-solid fa-arrow-right"></i></button>
+        <button class="nav-btn" onclick="toast('Page refreshed!')" title="Refresh"><i class="fa-solid fa-rotate-right"></i></button>
+        <button class="nav-btn" onclick="toast('Loading stopped.')" title="Stop"><i class="fa-solid fa-xmark"></i></button>
+        <div id="address-bar-wrap">
+          <i id="address-lock" class="fa-solid fa-lock"></i>
+          <input id="address-bar" type="text" value="heyground://permission" onkeydown="if(event.key==='Enter')navGo()">
+        </div>
+        <button id="go-btn" onclick="navGo()">Go</button>
+      </div>
+      <div id="browser-page">
+        <div class="browser-message active" id="page-permission">
+          <div class="browser-icon-circle" style="background:#ffd240;color:#3c2d00;font-size:28px"><i class="fa-solid fa-lock"></i></div>
+          <div class="browser-heading">Your parent hasn't given you access to the web browser yet!</div>
+          <div class="browser-sub">Ask them for permission!</div>
+        </div>
+        <div class="browser-message" id="page-search">
+          <div class="browser-icon-circle" style="background:var(--tab-bg);color:var(--accent1)"><i class="fa-solid fa-magnifying-glass"></i></div>
+          <div class="browser-heading" style="font-size:18px">Hey!Ground Search</div>
+          <div class="browser-sub">What would you like to find today?</div>
+          <div class="search-box-wrap">
+            <input type="text" placeholder="Search..." id="search-input" onkeydown="if(event.key==='Enter')toast('Search not available in prototype mode.')">
+            <button onclick="toast('Search not available in prototype mode.')"><i class="fa-solid fa-magnifying-glass"></i></button>
+          </div>
+        </div>
+        <div class="browser-message" id="page-offline">
+          <div class="browser-icon-circle" style="background:#b4d7f5;color:#143050"><i class="fa-solid fa-wifi"></i></div>
+          <div class="browser-heading">Looks like you are offline!</div>
+          <div class="browser-sub">Ask a parent to help you get back online!</div>
+        </div>
+      </div>
+      <div id="browser-dev-bar">
+        <i class="fa-solid fa-flask"></i>Prototype &mdash; preview:
+        <select onchange="switchBrowserPage(this.value)">
+          <option value="permission">Permission (parent lock)</option>
+          <option value="search">Search (basic search page)</option>
+          <option value="offline">Offline (no connection)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- GAMES / GAME LOUNGE -->
+    <div class="panel" id="panel-games">
+      <div class="games-header">
+        <i class="fa-solid fa-gamepad"></i>
+        <span class="games-header-title">Game Lounge</span>
+      </div>
+      <div class="games-grid" id="games-grid"></div>
+    </div>
+
+    <!-- PROFILE (new) -->
+    <div class="panel" id="panel-profile">
+      <div class="settings-title">My Profile</div>
+      <div class="profile-hero">
+        <div class="profile-avatar-lg" id="profile-av-preview" onclick="toast('Pick a colour below!')">A</div>
+        <div class="profile-display-nm" id="profile-name-prev">Alex</div>
+        <div class="profile-screen-nm" id="profile-screen-prev">@CoolKid42</div>
+      </div>
+      <div style="padding:0 4px">
+        <div class="settings-group-label" style="margin-bottom:8px">Avatar Colour</div>
+        <div class="color-swatch-row" id="color-swatch-row"></div>
+        <div class="field-group" style="margin-top:14px">
+          <label>Display Name</label>
+          <input type="text" id="p-display" value="Alex" oninput="livePreview()">
+        </div>
+        <div class="field-group">
+          <label>Screen Name</label>
+          <input type="text" id="p-screen" value="CoolKid42" oninput="livePreview()">
+        </div>
+        <div class="field-group">
+          <label>Status Message</label>
+          <input type="text" id="p-status" value="Ready to chat!">
+        </div>
+        <div class="settings-section" style="margin-top:8px">
+          <div class="settings-group-label">Password</div>
+          <div class="settings-card">
+            <div class="settings-desc">Need to change your password? Only a parent can do that. Send them a request!</div>
+            <button class="settings-action-btn" onclick="toast('Password reset request sent to your parent!')">
+              <i class="fa-solid fa-envelope"></i> Request Password Reset
+            </button>
+          </div>
+        </div>
+        <button class="save-btn" style="margin-top:8px;width:100%;justify-content:center" onclick="saveProfile()">
+          <i class="fa-solid fa-check"></i> Save Profile
+        </button>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <div class="settings-title">Settings</div>
+
+      <div class="settings-section">
+        <div class="settings-group-label">Theme Style</div>
+        <div class="settings-card">
+          <div class="settings-desc">Choose the overall look for Hey!Ground.</div>
+          <div class="style-radio-group">
+            <label class="style-radio"><input type="radio" name="style" value="primary" checked onchange="setStyle('primary')">Primary &mdash; Bright and fun</label>
+            <label class="style-radio"><input type="radio" name="style" value="secondary" onchange="setStyle('secondary')">Secondary &mdash; Clean and calm</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-group-label">Color Palette</div>
+        <div class="settings-card">
+          <div class="settings-desc">Pick a colour palette for the current style.</div>
+          <div class="palette-row" id="palette-row"></div>
+          <div style="display:flex;gap:6px;margin-top:4px" id="preview-strip"></div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-group-label">Notifications</div>
+        <div class="settings-card">
+          <label class="check-row"><input type="checkbox" checked> Play sound when a friend comes online</label>
+          <label class="check-row"><input type="checkbox" checked> Play sound when you receive a message</label>
+          <label class="check-row"><input type="checkbox"> Show pop-up for new messages</label>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-group-label">Privacy</div>
+        <div class="settings-card">
+          <label class="check-row"><input type="checkbox" checked> Only receive messages from friends</label>
+          <label class="check-row"><input type="checkbox" checked> Show when I am typing</label>
+        </div>
+      </div>
+
+      <!-- Account with prominent Sign Out -->
+      <div class="settings-section">
+        <div class="settings-group-label">Account</div>
+        <div class="settings-card">
+          <div class="settings-desc">Signed in as <strong id="settings-username">CoolKid42</strong></div>
+          <button class="signout-btn" onclick="confirmSignOut()">
+            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+          </button>
+        </div>
+      </div>
+
+      <!-- Need Help -->
+      <div class="settings-section">
+        <div class="settings-group-label">Need Help?</div>
+        <div class="settings-card settings-card-help">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="help-icon-circle"><i class="fa-solid fa-phone"></i></div>
+            <div style="flex:1">
+              <div style="font-weight:800;font-size:13px;margin-bottom:2px">Contact a Parent</div>
+              <div class="settings-desc">If you need help or feel unsafe, talk to a trusted adult.</div>
+            </div>
+          </div>
+          <button class="settings-action-btn settings-action-btn-help" onclick="showContactParent()">
+            <i class="fa-solid fa-circle-info"></i> Show safety message
+          </button>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="settings-section">
+        <div class="settings-group-label">About</div>
+        <div class="settings-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="font-family:var(--header-font);font-size:22px;color:var(--accent1)">Hey!Ground</div>
+            <div style="font-size:11px;color:var(--text-dim);background:var(--window-bg);padding:2px 8px;border-radius:20px;font-weight:700">v2.0</div>
+          </div>
+          <div class="settings-desc" style="line-height:1.7">A safe and fun messaging app for students.</div>
+        </div>
+      </div>
+
+      <button class="save-btn" onclick="toast('Settings saved!')">
+        <i class="fa-solid fa-check"></i> Save Settings
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- CHAT OVERLAY -->
+<div id="chat-overlay" onclick="closeChatIfOutside(event)">
+  <div id="chat-window">
+    <div id="chat-header">
+      <div id="chat-header-avatar"></div>
+      <div id="chat-header-info">
+        <div id="chat-header-name"></div>
+        <div id="chat-header-status"><i class="fa-solid fa-circle" style="font-size:8px"></i> Online</div>
+      </div>
+      <button id="chat-close" onclick="closeChat()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="chat-messages"></div>
+    <div id="chat-input-area">
+      <button id="attach-btn" onclick="triggerAttach()" title="Attach image"><i class="fa-solid fa-paperclip"></i></button>
+      <input type="file" id="file-input" style="display:none" accept="image/*" onchange="handleFileSelect(this)">
+      <textarea id="chat-input" rows="1" placeholder="Type a message..."
+        onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+      <button id="send-btn" onclick="sendMessage()" title="Send"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- SAFETY WARNING -->
+<div id="safety-overlay">
+  <div id="safety-modal">
+    <div class="safety-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    <h2>Heads up!</h2>
+    <p id="safety-text">A message contained a word that might not be OK. A parent has been notified.</p>
+    <button class="safety-ok-btn" onclick="closeSafetyWarning()">I understand</button>
+    <button class="safety-contact-link" onclick="showContactParent();closeSafetyWarning()">Contact a Parent now</button>
+  </div>
+</div>
+
+<!-- BEDTIME LOCK -->
+<div id="bedtime-overlay">
+  <div class="bedtime-stars">&#127769;</div>
+  <div class="bedtime-clock" id="bedtime-clock">10:00 PM</div>
+  <div class="bedtime-title">Hey!Ground is locked for bedtime</div>
+  <div class="bedtime-sub">Come back tomorrow! Sweet dreams &#127775;</div>
+  <button class="bedtime-emergency" onclick="showContactParent()">
+    <i class="fa-solid fa-phone"></i>&nbsp; Contact a Parent
+  </button>
+</div>
+
+<!-- CONTACT PARENT MODAL -->
+<div id="contact-modal-overlay" onclick="if(event.target===this)closeContactModal()">
+  <div id="contact-modal">
+    <div class="modal-icon"><i class="fa-solid fa-phone"></i></div>
+    <h2>Contact a Parent</h2>
+    <p>If you need help, feel unsafe, or have questions about Hey!Ground, please talk to a parent or trusted adult right away.</p>
+    <p>A parent can also help you with account settings, permissions, or anything else you are unsure about.</p>
+    <button class="modal-close" onclick="closeContactModal()">Got it!</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+//  SAFETY WORD BANK
+//  Case-insensitive, whole-word match.
+//  In production this list lives server-side.
+// ============================================================
+const FLAGGED_WORDS = [
+  'hate','kill','stupid','idiot','dumb','ugly',
+  'bully','fight','hurt','die','loser',
+];
+
+function containsFlagged(text) {
+  return FLAGGED_WORDS.find(w => new RegExp(`\\b${w}\\b`, 'i').test(text));
+}
+
+function triggerSafetyWarning(word) {
+  document.getElementById('safety-text').textContent =
+    `The word "${word}" was detected. A parent has been notified. ` +
+    `If you feel unsafe, please talk to a trusted adult.`;
+  document.getElementById('safety-overlay').classList.add('open');
+  console.warn(`[Safety] Flagged: "${word}"`);
+}
+
+function closeSafetyWarning() {
+  document.getElementById('safety-overlay').classList.remove('open');
+}
+
+// ============================================================
+//  FILE RESTRICTIONS  (images only; executables blocked)
+// ============================================================
+const BLOCKED_EXT = ['.exe','.bat','.sh','.cmd','.msi','.ps1','.jar','.dmg','.vbs','.scr'];
+
+function isAllowed(file) {
+  const ext = '.' + file.name.split('.').pop().toLowerCase();
+  if (BLOCKED_EXT.includes(ext)) return false;
+  return file.type.startsWith('image/');
+}
+
+// ============================================================
+//  AVATAR COLOURS
+// ============================================================
+const AVATAR_COLORS = [
+  '#ff8c00','#e91e8c','#1eaf78','#3c9fe6','#8728c3',
+  '#e74c3c','#2ecc71','#3498db','#9b59b6','#f39c12',
+  '#1abc9c','#e67e22',
+];
+let avatarColor = AVATAR_COLORS[0];
+
+// ============================================================
+//  DATA
+// ============================================================
+const BUDDIES = [
+  { name:'Sam',    screen:'stargazer99',  status:'Looking at the stars',      online:true  },
+  { name:'Jordan', screen:'ninjacoder',   status:'Coding something cool...',   online:true  },
+  { name:'Taylor', screen:'bookworm42',   status:'Reading Harry Potter again', online:true  },
+  { name:'Riley',  screen:'sportkid11',   status:'Just finished practice!',    online:true  },
+  { name:'Casey',  screen:'artlover77',   status:'Away - at art class',        online:false },
+  { name:'Morgan', screen:'mathwhiz2024', status:'Offline',                    online:false },
+  { name:'Jamie',  screen:'musicnotes',   status:'Away - at band practice',    online:false },
+  { name:'Alex',   screen:'sciencegirl',  status:'Offline',                    online:false },
+  { name:'Drew',   screen:'gamemaster5',  status:'Offline',                    online:false },
+];
+
+// New: Math Challenge and Language Learning featured at top
+const GAMES = [
+  { name:'Math Challenge',    desc:'Race the clock on maths problems — beat your high score!', tag:'Education', icon:'fa-calculator',     featured:true  },
+  { name:'Language Learning', desc:'Learn words in French, Spanish, or Japanese through fun mini-games!', tag:'Education', icon:'fa-language',      featured:true  },
+  { name:'Puzzle Blast',      desc:'Match tiles to clear the board!',   tag:'Puzzle',    icon:'fa-puzzle-piece',  featured:false },
+  { name:'Dash Runner',       desc:'Jump, duck, and dodge obstacles.',   tag:'Action',    icon:'fa-person-running',featured:false },
+  { name:'Pixel Painter',     desc:'Create 8-bit masterpieces.',         tag:'Creative',  icon:'fa-paintbrush',    featured:false },
+  { name:'Brain Quiz',        desc:'Test your knowledge with trivia!',   tag:'Trivia',    icon:'fa-circle-question',featured:false },
+  { name:'Star Catcher',      desc:'Catch falling stars in space.',      tag:'Arcade',    icon:'fa-star',          featured:false },
+  { name:'Pet Rescue',        desc:'Help animals find their homes.',     tag:'Adventure', icon:'fa-heart',         featured:false },
+  { name:'Number Ninja',      desc:'Slice equations before time runs.',  tag:'Math',      icon:'fa-calculator',    featured:false },
+  { name:'World Explorer',    desc:'Discover cool facts about Earth!',   tag:'Education', icon:'fa-earth-americas',featured:false },
+];
+
+const PALETTES = {
+  primary: [
+    {key:'sunshine', top:'#ffb030',dot:'#ff8c00',name:'Sunshine'},
+    {key:'bubblegum',top:'#dc3c8c',dot:'#c82878',name:'Bubblegum'},
+    {key:'tropical', top:'#1eaf78',dot:'#149060',name:'Tropical'},
+    {key:'sky',      top:'#3c9fe6',dot:'#1e82d2',name:'Sky'},
+    {key:'grape',    top:'#8728c3',dot:'#7328b3',name:'Grape Soda'},
+  ],
+  secondary: [
+    {key:'steelblue',top:'#3c64a0',dot:'#4682b4',name:'Steel Blue'},
+    {key:'slate',    top:'#465060',dot:'#505f73',name:'Slate'},
+    {key:'forest',   top:'#326e46',dot:'#2d7848',name:'Forest'},
+    {key:'charcoal', top:'#1e2026',dot:'#64b4ff',name:'Charcoal'},
+    {key:'parchment',top:'#a07846',dot:'#b48246',name:'Parchment'},
+  ],
+};
+
+// ============================================================
+//  STATE
+// ============================================================
+let currentStyle   = 'primary';
+let currentPalette = 'sunshine';
+let chatBuddy      = null;
+let navHistory     = ['heyground://permission'];
+let navIndex       = 0;
+// Bedtime: set via setBedtime(start, end) e.g. "21:00","07:00"
+let BEDTIME_START  = null;
+let BEDTIME_END    = null;
+
+// ============================================================
+//  INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderFriends();
+  renderGames();
+  renderPaletteRow();
+  renderPreviewStrip();
+  applyPalette(currentPalette);
+  renderColorSwatches();
+  syncAvatarPreview();
+  startBedtimeWatch();
+});
+
+// ============================================================
+//  TABS
+// ============================================================
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ============================================================
+//  FRIENDS
+// ============================================================
+function renderFriends() {
+  const on  = BUDDIES.filter(b => b.online);
+  const off = BUDDIES.filter(b => !b.online);
+  document.getElementById('online-list').innerHTML  = on.map(buddyHTML).join('');
+  document.getElementById('offline-list').innerHTML = off.map(buddyHTML).join('');
+  document.getElementById('friends-count').textContent = `${on.length} online / ${BUDDIES.length} total`;
+}
+
+function buddyHTML(b) {
+  const cls   = b.online ? '' : 'offline';
+  const click = b.online ? `onclick="openChat('${b.name}')"` : '';
+  const bg    = b.online ? `style="background:${avatarColor}"` : '';
+  return `
+    <div class="buddy-row ${cls}" ${click}>
+      <div class="buddy-avatar" ${bg}>${b.name[0]}</div>
+      <div class="buddy-info">
+        <div class="buddy-name">${b.name}</div>
+        <div class="buddy-status">${b.status}</div>
+      </div>
+      <div class="buddy-dot ${b.online ? 'online' : 'offline'}"></div>
+    </div>`;
+}
+
+// ============================================================
+//  CHAT
+// ============================================================
+function openChat(name) {
+  const buddy = BUDDIES.find(b => b.name === name);
+  if (!buddy) return;
+  chatBuddy = buddy;
+  const av = document.getElementById('chat-header-avatar');
+  av.textContent      = buddy.name[0];
+  av.style.background = avatarColor;
+  document.getElementById('chat-header-name').textContent = 'Chat with ' + buddy.name;
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = '';
+  addBubble(`Start a conversation with ${buddy.name}!`, 'system');
+  document.getElementById('chat-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('chat-input').focus(), 100);
+}
+
+function closeChat() {
+  document.getElementById('chat-overlay').classList.remove('open');
+  chatBuddy = null;
+}
+
+function closeChatIfOutside(e) {
+  if (e.target === document.getElementById('chat-overlay')) closeChat();
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text  = input.value.trim();
+  if (!text) return;
+
+  // Safety check — flag and warn but still allow message through locally
+  const flagged = containsFlagged(text);
+  if (flagged) triggerSafetyWarning(flagged);
+
+  addBubble(text, 'user');
+  input.value = '';
+  input.style.height = '';
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function autoResize(el) {
+  el.style.height = '';
+  el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+}
+
+function addBubble(text, type) {
+  const msgs = document.getElementById('chat-messages');
+  const now  = new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+  const row  = document.createElement('div');
+  row.className = 'msg-row ' + type;
+  row.innerHTML = `
+    <div class="msg-bubble ${type}">
+      ${escHtml(text)}
+      <div class="msg-time">${now}</div>
+    </div>`;
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ============================================================
+//  FILE ATTACHMENT
+// ============================================================
+function triggerAttach() { document.getElementById('file-input').click(); }
+
+function handleFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!isAllowed(file)) {
+    toast('Only images are allowed. Ask a parent to enable other file types.', true);
+    input.value = '';
+    return;
+  }
+  const msgs = document.getElementById('chat-messages');
+  const now  = new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+  const row  = document.createElement('div');
+  row.className = 'msg-row user';
+  row.innerHTML = `
+    <div class="msg-bubble user" style="padding:10px 12px">
+      <div class="attach-bubble">
+        <i class="fa-solid fa-file-image"></i>
+        <div>
+          <div style="font-weight:700;font-size:12px;color:var(--text)">${escHtml(file.name)}</div>
+          <div style="font-size:11px">${(file.size/1024).toFixed(1)} KB</div>
+        </div>
+      </div>
+      <div class="msg-time">${now}</div>
+    </div>`;
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+  input.value = '';
+  toast('Image attached! (prototype - not actually sent)');
+}
+
+// ============================================================
+//  BROWSER NAV
+// ============================================================
+function navGo() {
+  const url = document.getElementById('address-bar').value.trim();
+  if (!url) return;
+  navHistory = navHistory.slice(0, navIndex + 1);
+  navHistory.push(url);
+  navIndex = navHistory.length - 1;
+  updateNavBtns();
+}
+function navBack()    { if (navIndex > 0) { navIndex--; document.getElementById('address-bar').value = navHistory[navIndex]; updateNavBtns(); } }
+function navForward() { if (navIndex < navHistory.length-1) { navIndex++; document.getElementById('address-bar').value = navHistory[navIndex]; updateNavBtns(); } }
+function updateNavBtns() {
+  document.getElementById('btn-back').disabled    = navIndex === 0;
+  document.getElementById('btn-forward').disabled = navIndex >= navHistory.length - 1;
+}
+function switchBrowserPage(page) {
+  document.querySelectorAll('.browser-message').forEach(m => m.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+}
+
+// ============================================================
+//  GAMES
+// ============================================================
+function renderGames() {
+  document.getElementById('games-grid').innerHTML = GAMES.map(g => {
+    if (g.featured) return `
+      <div class="game-card featured" onclick="toast('${g.name} is coming soon!')">
+        <div class="featured-icon"><i class="fa-solid ${g.icon}"></i></div>
+        <div class="featured-info">
+          <div class="game-card-name">${g.name}</div>
+          <div class="game-card-desc">${g.desc}</div>
+          <div class="game-card-footer">
+            <span class="game-tag">${g.tag}</span>
+            <button class="play-btn" onclick="event.stopPropagation();toast('${g.name} is coming soon!')">
+              <i class="fa-solid fa-play"></i> Play
+            </button>
+          </div>
+        </div>
+      </div>`;
+    return `
+      <div class="game-card">
+        <div class="game-card-name"><i class="fa-solid ${g.icon}"></i>${g.name}</div>
+        <div class="game-card-desc">${g.desc}</div>
+        <div class="game-card-footer">
+          <span class="game-tag">${g.tag}</span>
+          <button class="play-btn" onclick="toast('${g.name} is coming soon!')">
+            <i class="fa-solid fa-play"></i> Play
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ============================================================
+//  PROFILE (new)
+// ============================================================
+function renderColorSwatches() {
+  document.getElementById('color-swatch-row').innerHTML = AVATAR_COLORS.map(c => `
+    <div class="color-dot ${c === avatarColor ? 'selected' : ''}"
+         style="background:${c}"
+         onclick="pickColor('${c}')"></div>`).join('');
+}
+
+function pickColor(c) {
+  avatarColor = c;
+  syncAvatarPreview();
+  renderColorSwatches();
+  renderFriends();
+}
+
+function syncAvatarPreview() {
+  const av = document.getElementById('profile-av-preview');
+  av.style.background = avatarColor;
+  const name = document.getElementById('p-display').value || 'Alex';
+  av.textContent = name[0].toUpperCase();
+}
+
+function livePreview() {
+  const name   = document.getElementById('p-display').value || 'Alex';
+  const screen = document.getElementById('p-screen').value  || 'CoolKid42';
+  document.getElementById('profile-av-preview').textContent  = name[0].toUpperCase();
+  document.getElementById('profile-name-prev').textContent   = name;
+  document.getElementById('profile-screen-prev').textContent = '@' + screen;
+}
+
+function saveProfile() {
+  const name   = document.getElementById('p-display').value.trim() || 'Alex';
+  const screen = document.getElementById('p-screen').value.trim()  || 'CoolKid42';
+  document.getElementById('header-name').textContent     = screen;
+  document.getElementById('settings-username').textContent = screen;
+  toast('Profile saved!');
+}
+
+// ============================================================
+//  THEME / PALETTE
+// ============================================================
+function setStyle(style) {
+  currentStyle   = style;
+  currentPalette = PALETTES[style][0].key;
+  renderPaletteRow();
+  applyPalette(currentPalette);
+}
+function applyPalette(key) {
+  currentPalette = key;
+  document.body.dataset.palette = key;
+  document.querySelectorAll('input[name="style"]').forEach(r => { r.checked = r.value === currentStyle; });
+  updateSwatchSelection();
+  renderPreviewStrip();
+}
+function renderPaletteRow() {
+  document.getElementById('palette-row').innerHTML = PALETTES[currentStyle].map(p => `
+    <div class="swatch ${p.key === currentPalette ? 'selected' : ''}"
+         onclick="applyPalette('${p.key}')" title="${p.name}">
+      <div class="swatch-inner" style="background:linear-gradient(180deg,${p.top} 50%,${p.dot} 50%)"></div>
+    </div>`).join('');
+}
+function updateSwatchSelection() {
+  document.querySelectorAll('.swatch').forEach(s => {
+    s.classList.toggle('selected', s.getAttribute('onclick').includes(`'${currentPalette}'`));
+  });
+}
+function renderPreviewStrip() {
+  const root = getComputedStyle(document.body);
+  const chips = [
+    ['Header',root.getPropertyValue('--header-top').trim()],
+    ['Background',root.getPropertyValue('--window-bg').trim()],
+    ['Your bubble',root.getPropertyValue('--bubble-user').trim()],
+    ['Their bubble',root.getPropertyValue('--bubble-other').trim()],
+    ['Accent',root.getPropertyValue('--accent1').trim()],
+  ];
+  document.getElementById('preview-strip').innerHTML = chips.map(([l,c]) =>
+    `<div title="${l}" style="width:48px;height:20px;background:${c};border-radius:6px;border:1.5px solid rgba(0,0,0,.1)"></div>`).join('');
+}
+
+// ============================================================
+//  BEDTIME LOCK
+// ============================================================
+function startBedtimeWatch() {
+  updateBedtimeClock();
+  setInterval(() => {
+    updateBedtimeClock();
+    checkBedtime();
+  }, 10000);
+}
+
+function updateBedtimeClock() {
+  const now = new Date();
+  document.getElementById('bedtime-clock').textContent =
+    now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+
+function checkBedtime() {
+  if (!BEDTIME_START || !BEDTIME_END) return;
+  const now = new Date();
+  const cur = now.getHours() * 60 + now.getMinutes();
+  const [sh,sm] = BEDTIME_START.split(':').map(Number);
+  const [eh,em] = BEDTIME_END.split(':').map(Number);
+  const s = sh*60+sm, e = eh*60+em;
+  const locked = s < e ? (cur >= s && cur < e) : (cur >= s || cur < e);
+  document.getElementById('bedtime-overlay').classList.toggle('active', locked);
+}
+
+// Called from parent dashboard via postMessage in a real implementation:
+function setBedtime(start, end) {
+  BEDTIME_START = start;
+  BEDTIME_END   = end;
+  checkBedtime();
+}
+
+// ============================================================
+//  SIGN OUT
+// ============================================================
+function confirmSignOut() {
+  const ov = document.createElement('div');
+  ov.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:300;animation:fadeIn .15s ease;backdrop-filter:blur(2px)`;
+  ov.innerHTML = `
+    <div style="background:var(--window-bg);border-radius:16px;padding:24px;width:min(280px,90vw);box-shadow:0 20px 50px rgba(0,0,0,.4);animation:slideUp .2s ease;text-align:center;font-family:var(--body-font)">
+      <div style="font-size:28px;margin-bottom:10px"><i class="fa-solid fa-right-from-bracket" style="color:#e05050"></i></div>
+      <div style="font-weight:800;font-size:15px;margin-bottom:6px;color:var(--text)">Sign Out?</div>
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:18px">Are you sure you want to sign out?</div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button onclick="this.closest('div[style]').parentElement.remove()"
+          style="background:var(--tab-bg);border:none;border-radius:9px;padding:9px 20px;font-family:var(--body-font);font-weight:700;font-size:13px;cursor:pointer;color:var(--text)">Cancel</button>
+        <button onclick="this.closest('div[style]').parentElement.remove();toast('Signed out. Goodbye!')"
+          style="background:#e05050;color:#fff;border:none;border-radius:9px;padding:9px 20px;font-family:var(--body-font);font-weight:700;font-size:13px;cursor:pointer">Sign Out</button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+}
+
+// ============================================================
+//  CONTACT A PARENT
+// ============================================================
+function showContactParent() { document.getElementById('contact-modal-overlay').classList.add('open'); }
+function closeContactModal()  { document.getElementById('contact-modal-overlay').classList.remove('open'); }
+
+// ============================================================
+//  TOAST
+// ============================================================
+let toastTimer;
+function toast(msg, danger = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = 'show' + (danger ? ' danger' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 2600);
+}
+</script>
+</body>
+</html>
